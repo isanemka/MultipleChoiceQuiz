@@ -1,6 +1,14 @@
+import { Link } from "react-router-dom";
 import "../../src/css/app.css";
 
-function End() {
+interface EndProps {
+  resetGame: () => void;
+}
+
+function End({ resetGame }: EndProps) {
+  const handlePlayAgain = () => {
+    resetGame();
+  };
   return (
     <>
       <main className='container'>
@@ -17,8 +25,12 @@ function End() {
               Save
             </button>
           </form>
-          <a className='btn'>Play Again</a>
-          <a className='btn'>Go Home</a>
+          <button onClick={handlePlayAgain} className='btn'>
+            Play Again
+          </button>
+          <Link to='/' className='btn'>
+            Go Home
+          </Link>
         </div>
       </main>
     </>
