@@ -11,16 +11,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/game' element={<Game />} />
-        <Route
-          path='/end'
-          element={
-            <End
-              resetGame={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
-          }
-        />
+        <Route path='/end' element={<End />} />
         <Route path='/highscores' element={<Highscores />} />
       </Routes>
     </Router>

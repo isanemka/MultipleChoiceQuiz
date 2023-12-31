@@ -1,17 +1,53 @@
 import React, { useState, useEffect } from "react";
+import Question from "./Question";
 import End from "./End";
 import "../../src/css/app.css";
 import "../../src/css/game.css";
 
 function Game() {
   const gameTime = 100;
+  const penaltyPoints = 10;
+  const [gamePoints, setGamePoints] = useState(gameTime);
   const [showEnd, setShowEnd] = useState(false);
   const [seconds, setSeconds] = useState(gameTime);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const resetGame = () => {
     setShowEnd(false);
     setSeconds(gameTime);
+    setGamePoints(gameTime);
+    setCurrentIndex(0);
   };
+
+  const questions = [
+    {
+      id: 1,
+      question: "What language is often used for front-end web development?",
+      choice1: "Java",
+      choice2: "Coffee Bean",
+      choice3: "JavaScript",
+      choice4: "English",
+      correctAnswer: "JavaScript",
+    },
+    {
+      id: 2,
+      question: "What does CSS stand for?",
+      choice1: "Counter Strike Source",
+      choice2: "Computer Steel Sheets",
+      choice3: "Colorful Styrofoam Sheep",
+      choice4: "Cascading Style Sheets",
+      correctAnswer: "Cascading Style Sheets",
+    },
+    {
+      id: 3,
+      question: "What does API stand for?",
+      choice1: "Application Programming Interface",
+      choice2: "Advanced Personal Irritation",
+      choice3: "Almond Processing Initiative",
+      choice4: "Apocalypse Protocol Initiation",
+      correctAnswer: "Application Programming Interface",
+    },
+  ];
 
   const CountdownTimer = () => {
     useEffect(() => {
@@ -19,22 +55,44 @@ function Game() {
         setSeconds((prevSeconds) => {
           if (prevSeconds === 0) {
             clearInterval(timer);
-            setShowEnd(true);
+
+            if (currentIndex < questions.length - 1) {
+              setCurrentIndex((prevIndex) => prevIndex + 1);
+              setSeconds(gameTime);
+            } else {
+              setShowEnd(true);
+            }
+
             return 0;
           } else {
+            setGamePoints(prevSeconds - 1);
             return prevSeconds - 1;
           }
         });
       }, 1000);
 
       return () => clearInterval(timer);
-    }, []);
-
+    }, [currentIndex]);
     return seconds;
   };
 
+  const handleAnswer = (selectedAnswer: string, correctAnswer: string) => {
+    if (selectedAnswer === correctAnswer) {
+      setGamePoints((prevScore) => prevScore);
+    } else {
+      setSeconds((prevSeconds) => Math.max(0, prevSeconds - penaltyPoints));
+      setGamePoints((prevScore) => Math.max(0, prevScore - penaltyPoints));
+    }
+
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+    } else {
+      setShowEnd(true);
+    }
+  };
+
   if (showEnd === true) {
-    return <End resetGame={resetGame} />;
+    return <End resetGame={resetGame} gamePoints={gamePoints} />;
   } else {
     return (
       <>
@@ -57,32 +115,23 @@ function Game() {
               </h1>
             </div>
           </div>
-
-          <h2 id='question'>What is the correct answer to this questions?</h2>
-          <div className='choice-container'>
-            <p className='choice-prefix'>A</p>
-            <p className='choice-text' data-number='1'>
-              Choice 1
-            </p>
-          </div>
-          <div className='choice-container'>
-            <p className='choice-prefix'>B</p>
-            <p className='choice-text' data-number='2'>
-              Choice 2
-            </p>
-          </div>
-          <div className='choice-container'>
-            <p className='choice-prefix'>C</p>
-            <p className='choice-text' data-number='3'>
-              Choice 3
-            </p>
-          </div>
-          <div className='choice-container'>
-            <p className='choice-prefix'>D</p>
-            <p className='choice-text' data-number='4'>
-              Choice 4
-            </p>
-          </div>
+          {currentIndex < questions.length && (
+            <Question
+              key={questions[currentIndex].id}
+              question={questions[currentIndex].question}
+              choice1={questions[currentIndex].choice1}
+              choice2={questions[currentIndex].choice2}
+              choice3={questions[currentIndex].choice3}
+              choice4={questions[currentIndex].choice4}
+              correctAnswer={questions[currentIndex].correctAnswer}
+              onAnswer={(selectedAnswer) =>
+                handleAnswer(
+                  selectedAnswer,
+                  questions[currentIndex].correctAnswer
+                )
+              }
+            />
+          )}
         </div>
       </>
     );
