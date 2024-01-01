@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Question from "./Question";
 import End from "./End";
+import { collection, getDocs } from "firebase/firestore";
+import db from "../firebase-config";
 import "../../src/css/app.css";
 import "../../src/css/game.css";
+
+interface QuestionData {
+  id: number;
+  question: string;
+  choice1: string;
+  choice2: string;
+  choice3: string;
+  choice4: string;
+  correctAnswer: string;
+}
 
 function Game() {
   const gameTime = 100;
@@ -11,6 +23,7 @@ function Game() {
   const [showEnd, setShowEnd] = useState(false);
   const [seconds, setSeconds] = useState(gameTime);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [questions, setQuestions] = useState<QuestionData[]>([]);
 
   const resetGame = () => {
     setShowEnd(false);
@@ -19,35 +32,24 @@ function Game() {
     setCurrentIndex(0);
   };
 
-  const questions = [
-    {
-      id: 1,
-      question: "What language is often used for front-end web development?",
-      choice1: "Java",
-      choice2: "Coffee Bean",
-      choice3: "JavaScript",
-      choice4: "English",
-      correctAnswer: "JavaScript",
-    },
-    {
-      id: 2,
-      question: "What does CSS stand for?",
-      choice1: "Counter Strike Source",
-      choice2: "Computer Steel Sheets",
-      choice3: "Colorful Styrofoam Sheep",
-      choice4: "Cascading Style Sheets",
-      correctAnswer: "Cascading Style Sheets",
-    },
-    {
-      id: 3,
-      question: "What does API stand for?",
-      choice1: "Application Programming Interface",
-      choice2: "Advanced Personal Irritation",
-      choice3: "Almond Processing Initiative",
-      choice4: "Apocalypse Protocol Initiation",
-      correctAnswer: "Application Programming Interface",
-    },
-  ];
+  const getQuestions = async () => {
+    try {
+      const questionsCollection = collection(db, "questions");
+
+      const querySnapshot = await getDocs(questionsCollection);
+
+      const questionData: QuestionData[] = querySnapshot.docs.map((doc) => ({
+        ...(doc.data() as QuestionData),
+      }));
+      setQuestions(questionData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getQuestions();
+  }, []);
 
   const CountdownTimer = () => {
     useEffect(() => {
@@ -91,7 +93,7 @@ function Game() {
     }
   };
 
-  if (showEnd === true) {
+  if (showEnd) {
     return <End resetGame={resetGame} gamePoints={gamePoints} />;
   } else {
     return (

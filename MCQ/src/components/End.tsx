@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { collection, addDoc } from "firebase/firestore";
+import db from "../firebase-config";
 import Highscores from "./Highscores";
 import "../../src/css/app.css";
 
@@ -12,14 +14,17 @@ function End({ resetGame, gamePoints }: EndProps) {
   const [username, setUsername] = useState("");
   const [showHighscores, setShowHighscores] = useState(false);
 
-  const handleSaveScore = () => {
-    const existingScores = JSON.parse(localStorage.getItem("scores") || "[]");
+  const handleSaveScore = async () => {
+    try {
+      await addDoc(collection(db, "highscores"), {
+        username,
+        score: gamePoints,
+      });
 
-    existingScores.push({ username, score: gamePoints });
-
-    localStorage.setItem("scores", JSON.stringify(existingScores));
-
-    setShowHighscores(true);
+      setShowHighscores(true);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handlePlayAgain = () => {
