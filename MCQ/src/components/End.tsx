@@ -30,7 +30,14 @@ function End({ resetGame, gamePoints }: EndProps) {
   const handlePlayAgain = () => {
     resetGame();
   };
-  const isSaveButtonDisabled = username.trim() === "";
+  const disabledButton = username.trim() === "";
+
+  const enterKeyPressed = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSaveScore();
+    }
+  };
 
   return (
     <>
@@ -48,13 +55,14 @@ function End({ resetGame, gamePoints }: EndProps) {
                 placeholder='username'
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={enterKeyPressed}
               />
               <button
                 type='button'
                 className='btn'
                 id='saveScoreBtn'
                 onClick={handleSaveScore}
-                disabled={isSaveButtonDisabled}
+                disabled={disabledButton}
               >
                 Save
               </button>

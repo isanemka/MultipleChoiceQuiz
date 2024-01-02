@@ -25,6 +25,9 @@ function Game() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
 
+  const progressBar = 100 / questions.length;
+  const progress = currentIndex * progressBar;
+
   const resetGame = () => {
     setShowEnd(false);
     setSeconds(gameTime);
@@ -50,6 +53,12 @@ function Game() {
   useEffect(() => {
     getQuestions();
   }, []);
+
+  useEffect(() => {
+    if (seconds === 0) {
+      setShowEnd(true);
+    }
+  }, [seconds]);
 
   const CountdownTimer = () => {
     useEffect(() => {
@@ -102,10 +111,13 @@ function Game() {
           <div id='hud'>
             <div className='hud-item'>
               <p id='progressText' className='hud-prefix'>
-                Question
+                Question {currentIndex + 1}/{questions.length}
               </p>
               <div id='progressBar'>
-                <div id='progressBarFull'></div>
+                <div
+                  id='progressBarFull'
+                  style={{ width: `${progress}%` }}
+                ></div>
                 <div></div>
               </div>
             </div>
